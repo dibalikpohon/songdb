@@ -9,5 +9,6 @@ func main() {
   e := echo.New()
   routes.RegisterSongRoutes(e)
   routes.RegisterAlbumRoutes(e)
+  routes.RegisterSongrelRoutes(e)
   e.Logger.Fatal(e.Start(":9000"))
 }
