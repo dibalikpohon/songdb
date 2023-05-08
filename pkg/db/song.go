@@ -25,8 +25,8 @@ func CreateNewSong(song *models.Song) (string, error) {
   }
 
   // Execute query to insert data to database
-  _, err = db.Exec("INSERT INTO `songs` VALUES(?, ?, ?, ?, ?)",
-                   newId, song.Title, song.Genre, song.Duration, song.Year)
+  _, err = db.Exec("INSERT INTO `songs` VALUES(?, ?, ?, ?, ?, ?)",
+                   newId, song.Title, song.Genre, song.Duration, song.Year, nil)
   if err != nil {
     return "", err
   }
