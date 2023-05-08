@@ -2,7 +2,7 @@
 Song Database using Go with Echo framework
 
 I created this repository to practice my Go skills. 
-I am trying to create backend server running with Echo framework.
+I am trying to create REST API running with Echo framework.
 
 ## Requirements
 * [github.com/go-sql-driver/mysql](https://pkg.go.dev/github.com/go-sql-driver/mysql)
