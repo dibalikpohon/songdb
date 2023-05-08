@@ -33,7 +33,7 @@ func GetSongsInAlbum(id string) ([]models.Song, error) {
     return nil, err
   }
 
-  rows, err := db.Query("SELECT * FROM `songs` WHERE `albumId`=?", id)
+  rows, err := db.Query("SELECT `id`, `title`, `genre`, `duration`, `year` FROM `songs` WHERE `albumId`=?", id)
   if err != nil {
     return nil, err
   }
