@@ -10,6 +10,6 @@ type SongRelService interface {
   CreateOneSongInAlbum(string, *models.SongDto) (string, error)
 }
 
-func NewSongRelDb(db *sql.DB) SongRelService {
+func NewSongRelService(db *sql.DB) SongRelService {
   return SongRelServiceImpl { db: db }
 }
