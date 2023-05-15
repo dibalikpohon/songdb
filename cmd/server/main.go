@@ -1,13 +1,14 @@
 package main
 
+import "github.com/labstack/echo/v4"
+
 import (
 	"songdb/pkg/config"
 	"songdb/pkg/controller"
 	"songdb/pkg/routes"
 	"songdb/pkg/service"
-
-	"github.com/labstack/echo/v4"
 )
+
 
 func main() {
   e := echo.New()
