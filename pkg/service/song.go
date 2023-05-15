@@ -11,6 +11,6 @@ type SongService interface {
   Delete(string) (error)
 }
 
-func NewSongDb(db *sql.DB) SongService {
+func NewSongService(db *sql.DB) SongService {
   return SongServiceImpl { db: db }
 }
