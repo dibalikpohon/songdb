@@ -5,3 +5,8 @@ type Album struct {
   Name string `json:"name"`
   Year int16 `json:"year"`
 }
+
+type AlbumDto struct {
+  Name string `json:"name"`
+  Year int16 `json:"year"` 
+}

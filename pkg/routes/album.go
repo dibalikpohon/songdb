@@ -3,15 +3,19 @@ package routes
 import "github.com/labstack/echo/v4"
 import "songdb/pkg/controller"
 
-func RegisterAlbumRoutes(e *echo.Echo) {
-  e.GET("/albums", controller.GetAllAlbums);
-  e.GET("/albums/:id", controller.GetAlbumById);
-  e.POST("/albums", controller.PostAlbum);
-  e.PUT("/albums/:id", controller.PutAlbumUpdate);
-  e.DELETE("/albums/:id", controller.DeleteAlbum);
+type AlbumRoutes struct {
+  controller controller.AlbumController
 }
 
+func NewAlbumRoutes(controller controller.AlbumController) AlbumRoutes {
+  return AlbumRoutes{ controller }
+}
 
-
-
-
+func (r AlbumRoutes) Register(e *echo.Echo) {
+  
+  e.GET("/albums", r.controller.GetAll);
+  e.GET("/albums/:id", r.controller.GetById);
+  e.POST("/albums", r.controller.Post);
+  e.PUT("/albums/:id", r.controller.Put);
+  e.DELETE("/albums/:id", r.controller.Delete);
+}

@@ -1,31 +1,27 @@
-package db
+package service
 
 import (
   "database/sql"
   "errors"
   "github.com/aidarkhanov/nanoid"
 
-	"songdb/pkg/config"
-	"songdb/pkg/models"
+  "songdb/pkg/models"
   myerror "songdb/pkg/errors"
 )
 
-func CreateNewAlbum(album *models.Album) (string, error) {
-  // Create a DB connection
-  db, err := config.GetDb();
-  if err != nil {
-    return "", err;
-  }
-  defer db.Close()
+type AlbumServiceImpl struct {
+  db *sql.DB
+}
 
-  // Generate an ID
-  newId, err := nanoid.Generate(nanoidAlnum, nanoidSize);
+func (ai AlbumServiceImpl) Create(dto *models.AlbumDto) (string, error) {
+  
+  newId, err := nanoid.Generate(nanoidAlnum, nanoidSize)
   if err != nil {
-    return "", err
+    return  "", err
   }
 
   // Execute query to insert data to database
-  _, err = db.Exec("INSERT INTO `albums` VALUES (?, ?, ?)", newId, album.Name, album.Year)
+  _, err = ai.db.Exec("INSERT INTO `albums` VALUES (?, ?, ?)", newId, dto.Name, dto.Year)
   if err != nil {
     return "", err
   }
@@ -33,16 +29,10 @@ func CreateNewAlbum(album *models.Album) (string, error) {
   return newId, nil
 }
 
-func ReadAlbumsTable() ([]models.Album, error) {
-  // Create a DB connection
-  db, err := config.GetDb()
-  if err != nil {
-    return nil, err
-  }
-  defer db.Close()
+func (ai AlbumServiceImpl) ReadAll() ([]models.Album, error) {
 
   // execute query to read all rows in albums table
-  rows, err := db.Query("SELECT `id`, `name`, `year` FROM `albums`")
+  rows, err := ai.db.Query("SELECT `id`, `name`, `year` FROM `albums`")
   if err != nil {
     return nil, err
   }
@@ -70,19 +60,13 @@ func ReadAlbumsTable() ([]models.Album, error) {
   return result, nil
 }
 
-func ReadOneAlbumById(id string) (*models.Album, error) {
-  // Create a DB connection
-  db, err := config.GetDb()
-  if err != nil {
-    return nil, err
-  }
-  defer db.Close()
+func (ai AlbumServiceImpl) ReadOne(id string) (*models.Album, error) {
 
   // Prepare the object
   var album models.Album
 
   // Create and execute the query
-  err = db.QueryRow("SELECT `id`, `name`, `year` FROM `albums` WHERE `id`=?", id).Scan(&album.Id, &album.Name, &album.Year)
+  err := ai.db.QueryRow("SELECT `id`, `name`, `year` FROM `albums` WHERE `id`=?", id).Scan(&album.Id, &album.Name, &album.Year)
   if err != nil {
     if errors.Is(err, sql.ErrNoRows) {
       return nil, &myerror.NoData{ Message: "Cannot find requested id", What: id }
@@ -93,16 +77,10 @@ func ReadOneAlbumById(id string) (*models.Album, error) {
   return &album, nil;
 }
 
-func UpdateAlbumById(id string, newAlbum *models.Album) (error) {
-  // Create a DB connection
-  db, err := config.GetDb()
-  if err != nil {
-    return err
-  }
-  defer db.Close()
+func (ai AlbumServiceImpl) Update(id string, dto *models.AlbumDto) error {
 
   // execute the query to update data
-  result, err := db.Exec("UPDATE `albums` SET `name`=?, `year`=? WHERE `id`=?", newAlbum.Name, newAlbum.Year, id)
+  result, err := ai.db.Exec("UPDATE `albums` SET `name`=?, `year`=? WHERE `id`=?", dto.Name, dto.Year, id)
   if err != nil {
     return err;
   }
@@ -114,16 +92,10 @@ func UpdateAlbumById(id string, newAlbum *models.Album) (error) {
   return nil
 }
 
-func DeleteAlbumById(id string) (error) {
-  // Create a DB connection
-  db, err := config.GetDb()
-  if err != nil {
-    return err
-  }
-  defer db.Close()
+func (ai AlbumServiceImpl) Delete(id string) error {
 
   // execute query to delete data
-  result, err := db.Exec("DELETE FROM `albums` WHERE `id`=?", id)
+  result, err := ai.db.Exec("DELETE FROM `albums` WHERE `id`=?", id)
   if err != nil {
     return err
   }

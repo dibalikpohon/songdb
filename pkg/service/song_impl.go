@@ -1,22 +1,19 @@
-package db
+package service
 
 import (
-	"database/sql"
+  "database/sql"
   "errors"
-	"songdb/pkg/config"
-	"songdb/pkg/models"
+  "songdb/pkg/models"
   myerrors "songdb/pkg/errors"
 
-	"github.com/aidarkhanov/nanoid"
+  "github.com/aidarkhanov/nanoid"
 )
 
-func CreateNewSong(song *models.Song) (string, error) {
-  // Create a DB connection
-  db, err := config.GetDb();
-  if err != nil {
-    return "", err;
-  }
-  defer db.Close();
+type SongServiceImpl struct {
+  db *sql.DB
+}
+
+func (si SongServiceImpl) Create(dto *models.SongDto) (string, error) {
 
   // Generate an ID
   newId, err := nanoid.Generate(nanoidAlnum, nanoidSize)
@@ -25,8 +22,8 @@ func CreateNewSong(song *models.Song) (string, error) {
   }
 
   // Execute query to insert data to database
-  _, err = db.Exec("INSERT INTO `songs` VALUES(?, ?, ?, ?, ?, ?)",
-                   newId, song.Title, song.Genre, song.Duration, song.Year, nil)
+  _, err = si.db.Exec("INSERT INTO `songs` VALUES(?, ?, ?, ?, ?, ?)",
+                   newId, dto.Title, dto.Genre, dto.Duration, dto.Year, nil)
   if err != nil {
     return "", err
   }
@@ -34,16 +31,10 @@ func CreateNewSong(song *models.Song) (string, error) {
   return newId, nil
 }
 
-func ReadSongsTable() ([]models.Song, error) {
-  // Create a DB connection
-  db, err := config.GetDb();
-  if err != nil {
-    return nil, err
-  }
-  defer db.Close()
+func  (si SongServiceImpl) ReadAll() ([]models.Song, error) {
 
   // execute query to read all rows in songs table
-  rows, err := db.Query("SELECT `id`, `title`, `genre`, `duration`, `year` FROM songs")
+  rows, err := si.db.Query("SELECT `id`, `title`, `genre`, `duration`, `year` FROM songs")
   if err != nil {
     return nil, err
   }
@@ -71,18 +62,11 @@ func ReadSongsTable() ([]models.Song, error) {
   return songs, nil
 }
 
-func ReadOneSongById(id string) (*models.Song, error) {
-  // Create a DB connection
-  db, err := config.GetDb()
-  if err != nil {
-    return nil, err
-  }
-  // Let's defer db.Close()!!!
-  defer db.Close();
+func (si SongServiceImpl) ReadOne(id string) (*models.Song, error) {
 
   var song models.Song
 
-  err = db.QueryRow("SELECT `id`, `title`, `genre`, `duration`, `year` fROM `songs` WHERE `id`=?", id).
+  err := si.db.QueryRow("SELECT `id`, `title`, `genre`, `duration`, `year` fROM `songs` WHERE `id`=?", id).
              Scan(&song.Id, &song.Title, &song.Genre, &song.Duration, &song.Year)
 
   if err != nil {
@@ -97,17 +81,11 @@ func ReadOneSongById(id string) (*models.Song, error) {
   return &song, nil 
 }
 
-func UpdateSongById(id string, newSong *models.Song) (error) {
-  // Create a DB connection
-  db, err := config.GetDb()
-  if err != nil {
-    return err
-  }
-  defer db.Close()
+func (si SongServiceImpl) Update(id string, dto *models.SongDto) (error) {
 
   // execute the query to update data
-  result, err := db.Exec("UPDATE `songs` SET `title`=?, `genre`=?, `duration`=?, `year`=? WHERE `id`=?",
-                   newSong.Title, newSong.Genre, newSong.Duration, newSong.Year, id)
+  result, err := si.db.Exec("UPDATE `songs` SET `title`=?, `genre`=?, `duration`=?, `year`=? WHERE `id`=?",
+                   dto.Title, dto.Genre, dto.Duration, dto.Year, id)
   if err != nil {
     return err
   }
@@ -119,16 +97,10 @@ func UpdateSongById(id string, newSong *models.Song) (error) {
   return nil
 }
 
-func DeleteSongById(id string) (error) {
-  // Create a DB connection
-  db, err := config.GetDb()
-  if err != nil {
-    return err
-  }
-  defer db.Close()
+func (si SongServiceImpl) Delete(id string) error {
 
   // Execute query to delete data
-  result, err := db.Exec("DELETE FROM `songs` WHERE `id`=?", id)
+  result, err := si.db.Exec("DELETE FROM `songs` WHERE `id`=?", id)
   if err != nil {
     return err;
   }

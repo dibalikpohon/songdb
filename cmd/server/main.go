@@ -1,14 +1,25 @@
 package main
 
-import (
-  "github.com/labstack/echo/v4"
-  "songdb/pkg/routes"
-)
+import "github.com/labstack/echo/v4"
+
+import "songdb/pkg/config"
 
 func main() {
   e := echo.New()
-  routes.RegisterSongRoutes(e)
-  routes.RegisterAlbumRoutes(e)
-  routes.RegisterSongrelRoutes(e)
+
+  db, err := config.GetDb()
+  if err != nil {
+    panic(err.Error())
+  }
+  defer db.Close()
+
+  songRoutes := InitializeSongRoutes(db)
+  albumRoutes := InitializeAlbumRoutes(db)
+  songRelRoutes := InitializeSongRelRoutes(db)
+
+  songRoutes.Register(e)
+  albumRoutes.Register(e)
+  songRelRoutes.Register(e)
+
   e.Logger.Fatal(e.Start(":9000"))
 }

@@ -1,4 +1,4 @@
-package db
+package service
 
 const (
   nanoidAlnum = "01234567890qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM"

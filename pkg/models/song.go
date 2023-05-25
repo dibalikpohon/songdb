@@ -8,4 +8,9 @@ type Song struct {
   Year int16        `json:"year"`
 }
 
-
+type SongDto struct { 
+  Title string      `json:"title"`
+  Genre string      `json:"genre"`
+  Duration int32    `json:"duration"`
+  Year int16        `json:"year"`
+}
