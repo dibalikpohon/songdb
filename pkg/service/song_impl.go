@@ -1,16 +1,17 @@
 package service
 
 import (
-  "database/sql"
   "errors"
   "songdb/pkg/models"
-  myerrors "songdb/pkg/errors"
+  myerror "songdb/pkg/errors"
 
   "github.com/aidarkhanov/nanoid"
 )
 
+import "gorm.io/gorm"
+
 type SongServiceImpl struct {
-  db *sql.DB
+  db *gorm.DB
 }
 
 func (si SongServiceImpl) Create(dto *models.SongDto) (string, error) {
@@ -22,10 +23,13 @@ func (si SongServiceImpl) Create(dto *models.SongDto) (string, error) {
   }
 
   // Execute query to insert data to database
-  _, err = si.db.Exec("INSERT INTO `songs` VALUES(?, ?, ?, ?, ?, ?)",
-                   newId, dto.Title, dto.Genre, dto.Duration, dto.Year, nil)
-  if err != nil {
-    return "", err
+  // _, err = si.db.Exec("INSERT INTO `songs` VALUES(?, ?, ?, ?, ?, ?)",
+  //                  newId, dto.Title, dto.Genre, dto.Duration, dto.Year, nil)
+  song := dto.ToEntity()
+  song.Id = newId
+  result := si.db.Create(&song)
+  if result.Error != nil {
+    return "", result.Error
   }
 
   return newId, nil
@@ -34,29 +38,14 @@ func (si SongServiceImpl) Create(dto *models.SongDto) (string, error) {
 func  (si SongServiceImpl) ReadAll() ([]models.Song, error) {
 
   // execute query to read all rows in songs table
-  rows, err := si.db.Query("SELECT `id`, `title`, `genre`, `duration`, `year` FROM songs")
-  if err != nil {
-    return nil, err
-  }
-  defer rows.Close()
-  
-  // Prepare the array
+  // rows, err := si.db.Query("SELECT `id`, `title`, `genre`, `duration`, `year` FROM songs")
   var songs []models.Song
 
-  // Iterate each rows by .Next()
-  for rows.Next() {
-    var song = models.Song{}
-    var err = rows.Scan(&song.Id, &song.Title, &song.Genre, &song.Duration, &song.Year)
-
-    if err != nil {
-      return nil, err
-    }
-
-    songs = append(songs, song)
-  }
-
-  if err = rows.Err(); err != nil {
-    return nil, err
+  // Find all data with no conditions
+  // SELECT * FROM songs;
+  result := si.db.Find(&songs)
+  if result.Error != nil {
+    return nil, result.Error
   }
 
   return songs, nil
@@ -66,16 +55,20 @@ func (si SongServiceImpl) ReadOne(id string) (*models.Song, error) {
 
   var song models.Song
 
-  err := si.db.QueryRow("SELECT `id`, `title`, `genre`, `duration`, `year` fROM `songs` WHERE `id`=?", id).
-             Scan(&song.Id, &song.Title, &song.Genre, &song.Duration, &song.Year)
+  result := si.db.First(&song, "id = ?", id)
 
-  if err != nil {
-    // How to compare errors in Go
-    // https://stackoverflow.com/a/57613539
-    if errors.Is(err, sql.ErrNoRows) {
-      return nil, &myerrors.NoData{ Message: "Cannot find requested id", What: id } 
-    }
-    return nil, err
+  // === I don't think checking err != nil is required
+  //     because errors.Is already did the null checking ===
+  // if err != nil {
+  //   // How to compare errors in Go
+  //   // https://stackoverflow.com/a/57613539
+  //   if errors.Is(err, sql.ErrNoRows) {
+  //     return nil, &myerrors.NoData{ Message: "Cannot find requested id", What: id } 
+  //   }
+  //   return nil, err
+  // }
+  if errors.Is(result.Error, gorm.ErrRecordNotFound) { 
+      return nil, &myerror.NoData{ Message: "Cannot find requested id", What: id }
   }
  
   return &song, nil 
@@ -84,15 +77,20 @@ func (si SongServiceImpl) ReadOne(id string) (*models.Song, error) {
 func (si SongServiceImpl) Update(id string, dto *models.SongDto) (error) {
 
   // execute the query to update data
-  result, err := si.db.Exec("UPDATE `songs` SET `title`=?, `genre`=?, `duration`=?, `year`=? WHERE `id`=?",
-                   dto.Title, dto.Genre, dto.Duration, dto.Year, id)
-  if err != nil {
-    return err
+  // result, err := si.db.Exec("UPDATE `songs` SET `title`=?, `genre`=?, `duration`=?, `year`=? WHERE `id`=?",
+  //                  dto.Title, dto.Genre, dto.Duration, dto.Year, id)
+  var song models.Song
+
+  // Grab first song that matches the primary key: id
+  result := si.db.First(&song, "id = ?", id)
+  if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+      return &myerror.NoData{ Message: "Cannot find requested id", What: id }
   }
-  
-  if rowsAffected, _ := result.RowsAffected(); rowsAffected == 0 {
-    return &myerrors.NoData{ Message: "Cannot find requested id", What: id };
-  }
+
+  // Modify them
+  song.UpdateFromDto(*dto)
+
+  si.db.Save(&song)
 
   return nil
 }
@@ -100,13 +98,10 @@ func (si SongServiceImpl) Update(id string, dto *models.SongDto) (error) {
 func (si SongServiceImpl) Delete(id string) error {
 
   // Execute query to delete data
-  result, err := si.db.Exec("DELETE FROM `songs` WHERE `id`=?", id)
-  if err != nil {
-    return err;
-  }
-
-  if rowsAffected, _ := result.RowsAffected(); rowsAffected == 0 {
-    return &myerrors.NoData{ Message: "Cannot find requested id", What: id };
+  // result, err := si.db.Exec("DELETE FROM `songs` WHERE `id`=?", id)
+  result := si.db.Delete(&models.Song{}, "id = ?", id)
+  if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+    return &myerror.NoData{ Message: "Cannot find requested id", What: id }
   }
 
   return nil
