@@ -1,16 +1,13 @@
 package config
 
-import "database/sql"
-import _ "github.com/go-sql-driver/mysql"
+import (
+  "gorm.io/gorm"
+  "gorm.io/driver/mysql"
+)
 
+func GetDb() (*gorm.DB, error) {
 
-func GetDb() (*sql.DB, error) {
-  db, err := sql.Open("mysql", "root:gomysql@tcp(:3306)/songdb")
-  if err != nil {
-    return nil, err
-  }
-
-  err = db.Ping()
+  db, err := gorm.Open(mysql.Open("root:gomysql@tcp(:3306)/songdb_gorm"))
   if err != nil {
     return nil, err
   }
