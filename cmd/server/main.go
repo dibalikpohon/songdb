@@ -11,8 +11,6 @@ func main() {
   if err != nil {
     panic(err.Error())
   }
-  defer db.Close()
-
   songRoutes := InitializeSongRoutes(db)
   albumRoutes := InitializeAlbumRoutes(db)
   songRelRoutes := InitializeSongRelRoutes(db)
