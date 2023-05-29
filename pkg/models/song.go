@@ -1,11 +1,12 @@
 package models
 
 type Song struct {
-  Id string         `json:"id" gorm:"primaryKey"`
-  Title string      `json:"title" gorm:"notNull"`
-  Genre string      `json:"genre" gorm:"notNull"`
+  Id string         `json:"id" gorm:"primaryKey;size:10"`
+  Title string      `json:"title" gorm:"notNull;size:30"`
+  Genre string      `json:"genre" gorm:"notNull;size:30"`
   Duration int32    `json:"duration"`
   Year int16        `json:"year" gorm:"notNull"`
+  AlbumId string
 }
 
 type SongDto struct { 

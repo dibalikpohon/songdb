@@ -1,9 +1,10 @@
 package models
 
 type Album struct {
-  Id string `json:"id" gorm:"primaryKey"`
-  Name string `json:"name" gorm:"notNull"`
-  Year int16 `json:"year" gorm:"notNull"`
+  Id string `json:"id" gorm:"primaryKey;size:10"`
+  Name string `json:"name" gorm:"notNull:size:30"`
+  Year int16 `json:"year" gorm:"notNull;size:30"`
+  Songs []Song `gorm:"constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
 }
 
 type AlbumDto struct {
