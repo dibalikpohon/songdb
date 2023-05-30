@@ -1,14 +1,13 @@
 package service
 
 import (
-  "errors"
-  "songdb/pkg/models"
-  myerrors "songdb/pkg/errors"
+	"errors"
+	myerrors "songdb/pkg/errors"
+	"songdb/pkg/models"
 
-  "github.com/aidarkhanov/nanoid"
+	"github.com/aidarkhanov/nanoid"
+	"gorm.io/gorm"
 )
-
-import "gorm.io/gorm"
 
 type SongRelServiceImpl struct {
   db *gorm.DB
@@ -19,15 +18,15 @@ func (sri SongRelServiceImpl) GetSongsInAlbum(id string) ([]models.Song, error) 
   // To get songs in album, we have to:
   // 1. Check if an album exists, return NotFound error if dont
   // 2. SELECT * from `songs` WHERE `albumId` = id
-  var _id string
-  result := sri.db.Limit(1).Where("id = ?", id).Select("id").Scan(&_id)
+  var album models.Album
+  result := sri.db.First(&album, "id = ?", id)
   if errors.Is(result.Error, gorm.ErrRecordNotFound) {
     return nil, &myerrors.NoData{ Message: "Cannot find requested id", What: id}
   }
 
   // Prepare array
   var songs []models.Song
-  result = sri.db.Select("id", "title", "genre", "duration").Find(&songs)
+  result = sri.db.Where("album_id = ?", id).Find(&songs)
   if result.Error != nil {
     return nil, result.Error
   }
@@ -38,9 +37,8 @@ func (sri SongRelServiceImpl) GetSongsInAlbum(id string) ([]models.Song, error) 
 func (sri SongRelServiceImpl) CreateOneSongInAlbum(albumId string, song *models.SongDto) (string, error) {
 
   // Check if albumId exists
-  var _albumId string
-  // err := sri.db.QueryRow("SELECT `id` FROM `albums` WHERE `id`=?", albumId).Scan(&_albumId)
-  result := sri.db.Limit(1).Select("id").Where("id = ?", albumId).Scan(&_albumId)
+  var album models.Album
+  result := sri.db.First(&album, "id = ?", albumId)
   if errors.Is(result.Error, gorm.ErrRecordNotFound) {
     return "", &myerrors.NoData{ Message: "Cannot find requested id", What: albumId}
   }
@@ -50,9 +48,12 @@ func (sri SongRelServiceImpl) CreateOneSongInAlbum(albumId string, song *models.
     return "", err
   }
 
+  song.AlbumId = album.Id;
+  _song := song.ToEntity(); 
+  _song.Id = songId;
+
   // Execute query to insert data to database
-  result = sri.db.Exec("INSERT INTO `songs` VALUES(?, ?, ?, ?, ?, ?)",
-                   songId, song.Title, song.Genre, song.Duration, song.Year, albumId)
+  result = sri.db.Create(&_song); 
   if result.Error != nil {
     return "", result.Error
   }
