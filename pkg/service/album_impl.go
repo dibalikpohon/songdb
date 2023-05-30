@@ -91,10 +91,14 @@ func (ai AlbumServiceImpl) Delete(id string) error {
 
   // execute query to delete data
   // result, err := ai.db.Exec("DELETE FROM `albums` WHERE `id`=?", id)
-  result := ai.db.Delete(&models.Album{}, "id = ?", id)
+  var album models.Album
+
+  result := ai.db.First(&album, "id = ?", id)
+  
   if errors.Is(result.Error, gorm.ErrRecordNotFound) {
     return &myerror.NoData{ Message: "Cannot find requested id", What: id }
   }
 
+  ai.db.Delete(&album)
   return nil
 }
