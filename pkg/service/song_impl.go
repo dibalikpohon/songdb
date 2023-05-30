@@ -99,10 +99,14 @@ func (si SongServiceImpl) Delete(id string) error {
 
   // Execute query to delete data
   // result, err := si.db.Exec("DELETE FROM `songs` WHERE `id`=?", id)
-  result := si.db.Delete(&models.Song{}, "id = ?", id)
+  var song models.Song;
+
+  result := si.db.First(&song, "id = ?", id); 
+  
   if errors.Is(result.Error, gorm.ErrRecordNotFound) {
     return &myerror.NoData{ Message: "Cannot find requested id", What: id }
   }
 
+  si.db.Delete(&song);
   return nil
 }
