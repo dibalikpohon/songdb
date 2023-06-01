@@ -22,7 +22,6 @@ func (ai AlbumServiceImpl) Create(dto *models.AlbumDto) (string, error) {
   }
 
   // Execute query to insert data to database
-  // _, err = ai.db.Exec("INSERT INTO `albums` VALUES (?, ?, ?)", newId, dto.Name, dto.Year)
   album := dto.ToEntity()
   album.Id = newId
   result := ai.db.Create(&album)
@@ -36,11 +35,9 @@ func (ai AlbumServiceImpl) Create(dto *models.AlbumDto) (string, error) {
 func (ai AlbumServiceImpl) ReadAll() ([]models.Album, error) {
 
   // execute query to read all rows in albums table
-  // rows, err := ai.db.Query("SELECT `id`, `name`, `year` FROM `albums`")
   var albums []models.Album
 
   // Find all data with no conditions
-  // SELECT * FROM albums;
   result := ai.db.Find(&albums)
   if result.Error != nil {
     return nil, result.Error
@@ -54,9 +51,6 @@ func (ai AlbumServiceImpl) ReadOne(id string) (*models.Album, error) {
   // Prepare the object
   var album models.Album
 
-  // Create and execute the query
-  // err := ai.db.QueryRow("SELECT `id`, `name`, `year` FROM `albums` WHERE `id`=?", id).Scan(&album.Id, &album.Name, &album.Year)
-
   // Grab the first data that matches the primary key: id
   result := ai.db.First(&album, "id = ?", id)
   if errors.Is(result.Error, gorm.ErrRecordNotFound) {
@@ -69,7 +63,6 @@ func (ai AlbumServiceImpl) ReadOne(id string) (*models.Album, error) {
 func (ai AlbumServiceImpl) Update(id string, dto *models.AlbumDto) error {
 
   // execute the query to update data
-  // result, err := ai.db.Exec("UPDATE `albums` SET `name`=?, `year`=? WHERE `id`=?", dto.Name, dto.Year, id)
   var album models.Album
 
   // Grab first album that matches primary key: id
@@ -90,7 +83,6 @@ func (ai AlbumServiceImpl) Update(id string, dto *models.AlbumDto) error {
 func (ai AlbumServiceImpl) Delete(id string) error {
 
   // execute query to delete data
-  // result, err := ai.db.Exec("DELETE FROM `albums` WHERE `id`=?", id)
   var album models.Album
 
   result := ai.db.First(&album, "id = ?", id)

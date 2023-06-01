@@ -15,9 +15,6 @@ type SongRelServiceImpl struct {
 
 func (sri SongRelServiceImpl) GetSongsInAlbum(id string) ([]models.Song, error) {
 
-  // To get songs in album, we have to:
-  // 1. Check if an album exists, return NotFound error if dont
-  // 2. SELECT * from `songs` WHERE `albumId` = id
   var album models.Album
   result := sri.db.First(&album, "id = ?", id)
   if errors.Is(result.Error, gorm.ErrRecordNotFound) {
