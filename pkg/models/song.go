@@ -12,11 +12,11 @@ type Song struct {
 }
 
 type SongDto struct { 
-  Title string      `json:"title"`
-  Genre string      `json:"genre"`
-  Duration int32    `json:"duration"`
-  Year int16        `json:"year"`
-  AlbumId string    `json:"albumId"`
+  Title string      `json:"title" validate:"printascii"`
+  Genre string      `json:"genre" validate:"printascii"`
+  Duration int32    `json:"duration" validate:"number,gte=0,lte=1000"`
+  Year int16        `json:"year" validate:"gte=1970,lte=2090"`
+  AlbumId string    `json:"albumId" validate:"printascii"`
 }
 
 func (s *Song) UpdateFromDto(dto SongDto) {

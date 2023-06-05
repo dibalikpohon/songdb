@@ -8,8 +8,8 @@ type Album struct {
 }
 
 type AlbumDto struct {
-  Name string `json:"name"`
-  Year int16 `json:"year"` 
+  Name string `json:"name" validate:"printascii"`
+  Year int16 `json:"year" validate:"number,gte=1970,lte=2090"` 
 }
 
 func (a *Album) UpdateFromDto(dto AlbumDto) {
