@@ -1,11 +1,10 @@
 // go:build wireinject
 // +build wireinject
 
-
 package main
 
 import (
-	"database/sql"
+	"gorm.io/gorm"
 	"songdb/pkg/controller"
 	"songdb/pkg/routes"
 	"songdb/pkg/service"
@@ -13,21 +12,21 @@ import (
 	"github.com/google/wire"
 )
 
-func InitializeSongRoutes(db *sql.DB) routes.SongRoutes {
+func InitializeSongRoutes(db *gorm.DB) routes.SongRoutes {
   wire.Build(service.NewSongService, 
              controller.NewSongController, 
              routes.NewSongRoutes)
   return routes.SongRoutes{}
 }
 
-func InitializeAlbumRoutes(db *sql.DB) routes.AlbumRoutes {
+func InitializeAlbumRoutes(db *gorm.DB) routes.AlbumRoutes {
   wire.Build(service.NewAlbumService, 
              controller.NewAlbumController, 
              routes.NewAlbumRoutes)
   return routes.AlbumRoutes{}
 }
 
-func InitializeSongRelRoutes(db *sql.DB) routes.SongRelRoutes {
+func InitializeSongRelRoutes(db *gorm.DB) routes.SongRelRoutes {
   wire.Build(service.NewSongRelService,
              controller.NewSongRelController,
              routes.NewSongRelRoutes)

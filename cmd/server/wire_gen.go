@@ -7,7 +7,7 @@
 package main
 
 import (
-	"database/sql"
+	"gorm.io/gorm"
 	"songdb/pkg/controller"
 	"songdb/pkg/routes"
 	"songdb/pkg/service"
@@ -15,21 +15,21 @@ import (
 
 // Injectors from wire.go:
 
-func InitializeSongRoutes(db *sql.DB) routes.SongRoutes {
+func InitializeSongRoutes(db *gorm.DB) routes.SongRoutes {
 	songService := service.NewSongService(db)
 	songController := controller.NewSongController(songService)
 	songRoutes := routes.NewSongRoutes(songController)
 	return songRoutes
 }
 
-func InitializeAlbumRoutes(db *sql.DB) routes.AlbumRoutes {
+func InitializeAlbumRoutes(db *gorm.DB) routes.AlbumRoutes {
 	albumService := service.NewAlbumService(db)
 	albumController := controller.NewAlbumController(albumService)
 	albumRoutes := routes.NewAlbumRoutes(albumController)
 	return albumRoutes
 }
 
-func InitializeSongRelRoutes(db *sql.DB) routes.SongRelRoutes {
+func InitializeSongRelRoutes(db *gorm.DB) routes.SongRelRoutes {
 	songRelService := service.NewSongRelService(db)
 	songRelController := controller.NewSongRelController(songRelService)
 	songRelRoutes := routes.NewSongRelRoutes(songRelController)

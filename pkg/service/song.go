@@ -1,7 +1,7 @@
 package service
 
-import "database/sql"
 import "songdb/pkg/models"
+import "gorm.io/gorm"
 
 type SongService interface {
   Create(*models.SongDto) (string, error)
@@ -11,6 +11,6 @@ type SongService interface {
   Delete(string) (error)
 }
 
-func NewSongService(db *sql.DB) SongService {
+func NewSongService(db *gorm.DB) SongService {
   return SongServiceImpl { db: db }
 }

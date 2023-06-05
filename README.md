@@ -5,7 +5,7 @@ I created this repository to practice my Go skills.
 I am trying to create REST API running with Echo framework.
 
 ## Requirements
-* [github.com/go-sql-driver/mysql](https://pkg.go.dev/github.com/go-sql-driver/mysql)
+* [gorm.io/gorm](https://gorm.io/)
 * [github.com/labstack/echo/v4](https://echo.labstack.com/)
 * [github.com/aidarkhanov/nanoid](https://github.com/aidarkhanov/nanoid)
 

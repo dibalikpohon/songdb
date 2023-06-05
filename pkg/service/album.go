@@ -1,9 +1,7 @@
 package service
 
-import (
-  "database/sql"
-	"songdb/pkg/models"
-)
+import "songdb/pkg/models"
+import "gorm.io/gorm"
 
 type AlbumService interface {
   Create(*models.AlbumDto) (string, error)
@@ -13,6 +11,6 @@ type AlbumService interface {
   Delete(string) (error)
 }
 
-func NewAlbumService(db *sql.DB) AlbumService {
+func NewAlbumService(db *gorm.DB) AlbumService {
   return AlbumServiceImpl {db: db}
 }
