@@ -42,9 +42,9 @@ func (sri SongRelControllerImpl) GetAllSongsInAlbum(c echo.Context) error {
 func (sri SongRelControllerImpl) PostSongInAlbum(c echo.Context) error {
 
   id := c.Param("id")
-  song := new(models.SongDto)
+  dto := new(models.SongDto)
 
-  if err := c.Bind(song); err != nil {
+  if err := c.Bind(dto); err != nil {
     response := map[string]string {
       "message": "Malformed payload",
       "anotherMessage": err.Error(),
@@ -52,7 +52,11 @@ func (sri SongRelControllerImpl) PostSongInAlbum(c echo.Context) error {
     return c.JSON(http.StatusBadRequest, response)
   }
 
-  songId, err := sri.service.CreateOneSongInAlbum(id, song);
+  if err := c.Validate(dto); err != nil {
+    return err;
+  }
+
+  songId, err := sri.service.CreateOneSongInAlbum(id, dto);
   if err != nil {
     var notFoundError *myerror.NoData
     if errors.As(err, &notFoundError) {

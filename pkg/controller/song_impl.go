@@ -63,6 +63,10 @@ func (si SongControllerImpl) Post(c echo.Context) error {
     return c.JSON(http.StatusBadRequest, response)
   }
 
+  if err := c.Validate(dto); err != nil {
+    return err;
+  }
+
   id, err := si.service.Create(dto);
   if err != nil {
     response := map[string]string {
@@ -89,6 +93,10 @@ func (si SongControllerImpl) Put(c echo.Context) error {
       "anotherMessage": err.Error(),
     }
     return c.JSON(http.StatusBadRequest, response)
+  }
+  
+  if err := c.Validate(dto); err != nil {
+    return err;
   }
 
   err := si.service.Update(id, dto);
