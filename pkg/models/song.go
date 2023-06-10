@@ -12,10 +12,10 @@ type Song struct {
 }
 
 type SongDto struct { 
-  Title string      `json:"title" validate:"printascii"`
-  Genre string      `json:"genre" validate:"printascii"`
+  Title string      `json:"title" validate:"printascii,max=30"`
+  Genre string      `json:"genre" validate:"printascii,max=30"`
   Duration int32    `json:"duration" validate:"number,gte=0,lte=1000"`
-  Year int16        `json:"year" validate:"gte=1970,lte=2090"`
+  Year int16        `json:"year" validate:"number,gte=1600,lte=2090"`
   AlbumId string    `json:"albumId" validate:"printascii"`
 }
 

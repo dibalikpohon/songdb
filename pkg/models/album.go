@@ -8,7 +8,7 @@ type Album struct {
 }
 
 type AlbumDto struct {
-  Name string `json:"name" validate:"printascii"`
+  Name string `json:"name" validate:"printascii,max=30"`
   Year int16 `json:"year" validate:"number,gte=1970,lte=2090"` 
 }
 
